@@ -4,7 +4,7 @@
 # Descrição:
 # App para ler faturas com QR code , exportar os dados e enviar para uma lista de movimentos de saída, para posteriormente enviar para uma api de movimentos de saída junto com a foto da fatura.
 
-# Tecnologias utilizadas:
+# Tecnologias a utilizadar:
 # -> Python
 # -> Backend: FastAPI
 # -> Frontend: HTML + CSS + JS
