@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-# Criar um router para as rotas do login
+# Create a router for the login routes.
 router = APIRouter()
 
 # Temporary database for testing.
