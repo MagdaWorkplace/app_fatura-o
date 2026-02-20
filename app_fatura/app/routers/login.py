@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 # Create a router for the login routes.
@@ -22,6 +22,6 @@ def login(request_login: RequestLogin):
         if users[request_login.username] == request_login.password:
             return {"status": "success"}
         else:
-            return {"status": "Wrong password"}
+            raise HTTPException(status_code=400, detail="Wrong password!")
     else:
-        return {"status": "User doesn't exist"}
+        raise HTTPException(status_code=400, detail="User doesn't exist!")
