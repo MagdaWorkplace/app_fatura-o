@@ -1,18 +1,10 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from models import RequestLogin
 from passlib.context import CryptContext
+from security import verify_password, create_access_token
+from db import users_dic
 # Create a router for the login routes.
 router = APIRouter()
-
-password_context = CryptContext(schemes=["bcrypt"])
-
-# Temporary database for testing.
-users_dic = {"Alice": password_context.hash("123"), "Rute": password_context.hash("456")}
-
-# Model fot JSON body of the post request.
-class RequestLogin(BaseModel):
-    username: str
-    password: str
 
 # Post - login route.
 # Receive JSON with the username and password.
@@ -23,9 +15,12 @@ def login(request_login: RequestLogin):
         # If exists, checks if the password is correct - Compare with the hash version.
         hashed_password = users_dic[request_login.username]
         password_to_check = request_login.password
-        if password_context.verify(password_to_check, hashed_password):
-            return {"status": "Logged in."}
+        if verify_password(password_to_check, hashed_password):
+            access_token = create_access_token({"sub": request_login.username})
+
+            return {"access_token": access_token, "token_type": "bearer"}
         else:
             raise HTTPException(status_code=400, detail="Wrong password!")
     else:
         raise HTTPException(status_code=400, detail="User doesn't exist!")
+
