@@ -1,10 +1,11 @@
 from fastapi import APIRouter, HTTPException
 from models import RequestLogin
-from passlib.context import CryptContext
 from security import verify_password, create_access_token
 from db import users_dic
+
 # Create a router for the login routes.
 router = APIRouter()
+
 
 # Post - login route.
 # Receive JSON with the username and password.
@@ -18,9 +19,9 @@ def login(request_login: RequestLogin):
         if verify_password(password_to_check, hashed_password):
             access_token = create_access_token({"sub": request_login.username})
 
+            # Returns the access token used by the protected routes.
             return {"access_token": access_token, "token_type": "bearer"}
         else:
             raise HTTPException(status_code=400, detail="Wrong password!")
     else:
         raise HTTPException(status_code=400, detail="User doesn't exist!")
-
