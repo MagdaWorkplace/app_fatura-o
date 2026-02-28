@@ -1,7 +1,9 @@
-from fastapi import APIRouter, HTTPException
-from models import RequestRegister
+from fastapi import APIRouter, HTTPException, Depends
+from models import RequestRegister, User
 from security import hash_password
-from db import users_dic
+from db import get_db
+from sqlalchemy.orm import Session
+
 
 # Create a router for the register routes.
 router = APIRouter()
@@ -10,12 +12,23 @@ router = APIRouter()
 # Post - register route.
 # Receive JSON with the username and password.
 @router.post("/register")
-def register(request_register: RequestRegister):
-    # Checks if the username already exists.
-    if request_register.username in users_dic:
+# The db_ Session = Depends(get_db) -> tells the FastAPI to open a database session from this request.
+def register(request_register: RequestRegister, db: Session = Depends(get_db)):
+    # Checks if the username already exists in the database.
+    existing_user = db.query(User).filter(User.username == request_register.username).first()
+    if existing_user:
         raise HTTPException(status_code=409, detail="Username already exists")
 
-    # Hash password before storing.
+    # Hash plaint password before storing it.
+    hashed_password = hash_password(request_register.password)
     # If username doesn't exist, add it to the dictionary.
-    users_dic[request_register.username] = hash_password(request_register.password)
+    # Create a new User instance.
+    new_user = User(username=request_register.username, hashed_password=hashed_password)
+    # Add it to the database.
+    db.add(new_user)
+    # Commit the session-
+    db.commit()
+    # Refresh the object from DB.
+    db.refresh(new_user)
+
     return {"status": "Successfully added!"}
