@@ -2,7 +2,10 @@ from fastapi import APIRouter, HTTPException, Depends
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials, OAuth2PasswordBearer
+from sqlalchemy.orm import Session
+from db import get_db
+from models import User
 
 router = APIRouter()
 
@@ -24,7 +27,6 @@ SECRET_KEY = "secret_key"
 ALGORITHM = "HS256"
 EXPIRE_MINUTES_TOKEN = 30
 security = HTTPBearer()
-
 
 # Create token.
 def create_access_token(data: dict):
@@ -62,3 +64,30 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     #  We raise this error.
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+
+# Inform FastAPI to expect "Authorization: Bearer <token>".
+oauth_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+
+def get_current_user(token: str = Depends(oauth_scheme), db: Session = Depends(get_db)):
+    exception_credentials = HTTPException(status_code=401, detail="Not the credentials expected",)
+
+    try:
+        # Decode JWT.
+        payload = jwt.decode(token, SECRET_KEY,algorithms=[ALGORITHM])
+
+        username: str = payload.get("sub")
+
+        if username in None:
+            raise exception_credentials
+    except JWTError:
+        raise exception_credentials
+
+    # Fetch from the database.
+    user = db.query(User).filter(User.username == username).first()
+
+    if user is None:
+        raise exception_credentials
+
+    return user

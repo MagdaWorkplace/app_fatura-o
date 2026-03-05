@@ -3,6 +3,8 @@ from routers.login import router as login_router
 from routers.register import router as register_router
 from routers import protected
 from db import create_tables
+from routers.upload_invoice import router as upload_invoice
+
 # Create an instance of FastAPI.
 app = FastAPI()
 
@@ -13,6 +15,7 @@ create_tables()
 app.include_router(login_router)
 app.include_router(register_router)
 app.include_router(protected.router)
+app.include_router(upload_invoice)
 
 
 # Test if the serve works.
