@@ -35,7 +35,9 @@ class Invoice(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     # QR data - raw information, decoded string.
     qr_raw_data = Column(String, nullable=False)
-    # Parsed fields -> add more later.
-    invoice_number = Column(String)
-    total_amount = Column(String)
-    date = Column(String)
+
+    # Parsed fields -> add more later. -- ASK ABOUT WHICH INFORMATION IS EXPECTED TO BE EXTRACTED.
+    seller_name = Column(String, nullable=True)
+    seller_nif = Column(String, nullable=True)
+    invoice_date = Column(String, nullable=True)
+    total_amount = Column(String, nullable=True)

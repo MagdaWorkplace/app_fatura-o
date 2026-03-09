@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials, OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from db import get_db
 from models import User
@@ -52,7 +52,7 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
 
         # If username is missing, the token is invalid.
         if username is None:
-            raise HTTPException(status_code=401, detail="Invalid Token")
+            raise HTTPException(status_code=401, detail="Invalid Token- username missing")
         # Returns the username, so the protected routes can use it.
         return username
 
@@ -67,27 +67,27 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
 
 
 # Inform FastAPI to expect "Authorization: Bearer <token>".
-oauth_scheme = OAuth2PasswordBearer(tokenUrl="login")
+token_auth_scheme = HTTPBearer()
 
 
-def get_current_user(token: str = Depends(oauth_scheme), db: Session = Depends(get_db)):
-    exception_credentials = HTTPException(status_code=401, detail="Not the credentials expected",)
+def get_current_user(token:  HTTPAuthorizationCredentials = Depends(token_auth_scheme), db: Session = Depends(get_db)):
 
     try:
         # Decode JWT.
-        payload = jwt.decode(token, SECRET_KEY,algorithms=[ALGORITHM])
+        payload = jwt.decode(token.credentials, SECRET_KEY,algorithms=[ALGORITHM])
 
         username: str = payload.get("sub")
 
-        if username in None:
-            raise exception_credentials
+        if username is None:
+            raise HTTPException(status_code=401, detail = "Invalid token. - there is no username")
+
     except JWTError:
-        raise exception_credentials
+        raise HTTPException(status_code=401, detail="Invalid token. - JWTError")
 
     # Fetch from the database.
     user = db.query(User).filter(User.username == username).first()
 
     if user is None:
-        raise exception_credentials
+        raise HTTPException(status_code=401, detail="User not found.")
 
     return user
