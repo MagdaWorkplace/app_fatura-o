@@ -1,3 +1,12 @@
+# Instalar bibliotecas do backend:
+# pip install -r requirements.txt
+
+# Para correr o fastAPI:
+# uvicorn main:app --reload
+
+# Para correr o frontend.
+# npm run dev
+
 # app_fatura-o
 # App de leitura de faturas com o QR Code
 
@@ -7,8 +16,8 @@
 # Tecnologias a utilizadar:
 # -> Python
 # -> Backend: FastAPI
-# -> Frontend: HTML + CSS + JS
-# -> Base de dados: SQlite
+# -> Frontend: React + Axios
+# -> Base de dados: SQlite, SQLAlchemy
 # -> Leitura de QR code: Pyzbar + OpenCV
 # -> Autenticação: JW (Json Web Token)
 # -> Addicionais: 
