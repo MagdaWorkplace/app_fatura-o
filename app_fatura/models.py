@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy import Column, Integer, String, ForeignKey
 from db import Base
 
@@ -7,7 +7,7 @@ from db import Base
 class RequestRegister(BaseModel):
     username: str
     password: str = Field(max_length=72, description="The password need to be 72 charcters or less.")
-
+    email: EmailStr
 
 class RequestLogin(BaseModel):
     username: str
@@ -23,6 +23,8 @@ class User(Base):
     username= Column(String, unique=True, index=True, nullable=False)
     # Hashed password column.
     hashed_password = Column(String, nullable=False)
+    # Email.
+    email = Column(String, unique=True, nullable=True)
 
 
 class Invoice(Base):

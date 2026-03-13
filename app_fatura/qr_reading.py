@@ -1,5 +1,5 @@
 import cv2
-import  numpy as np
+import numpy as np
 from pyzbar.pyzbar import decode
 
 def read_qr(image_bytes:bytes):
